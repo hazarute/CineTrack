@@ -1,103 +1,136 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import { useState, useEffect } from "react"
+import { MovieCard } from "@/components/movie-card"
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+interface Movie {
+  id: number
+  title: string
+  year: number
+  poster: string
+}
+
+// Mock movie data
+const mockMovies: Movie[] = [
+  {
+    id: 1,
+    title: "The Dark Knight",
+    year: 2008,
+    poster: "/dark-knight-poster.png"
+  },
+  {
+    id: 2,
+    title: "Inception",
+    year: 2010,
+    poster: "/inception-movie-poster.png"
+  },
+  {
+    id: 3,
+    title: "Interstellar",
+    year: 2014,
+    poster: "/interstellar-inspired-poster.png"
+  },
+  {
+    id: 4,
+    title: "The Matrix",
+    year: 1999,
+    poster: "/matrix-movie-poster.png"
+  },
+  {
+    id: 5,
+    title: "Pulp Fiction",
+    year: 1994,
+    poster: "/pulp-fiction-poster.png"
+  },
+  {
+    id: 6,
+    title: "The Shawshank Redemption",
+    year: 1994,
+    poster: "/shawshank-redemption-poster.png"
+  },
+  {
+    id: 7,
+    title: "Forrest Gump",
+    year: 1994,
+    poster: "/forrest-gump-poster.png"
+  },
+  {
+    id: 8,
+    title: "The Godfather",
+    year: 1972,
+    poster: "/classic-mob-poster.png"
+  }
+]
+
+export default function HomePage() {
+  const [searchResults, setSearchResults] = useState<Movie[]>([])
+  const [watchlist, setWatchlist] = useState<Movie[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate loading search results
+    const timer = setTimeout(() => {
+      setSearchResults(mockMovies)
+      setIsLoading(false)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  const handleAddToWatchlist = (movie: Movie) => {
+    setWatchlist(prev => [...prev, movie])
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-2">Discover Movies & TV Shows</h1>
+          <p className="text-muted-foreground">Loading popular movies...</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="space-y-3">
+              <div className="aspect-[2/3] bg-muted rounded-lg animate-pulse" />
+              <div className="space-y-2">
+                <div className="h-4 bg-muted rounded animate-pulse" />
+                <div className="h-3 bg-muted rounded w-16 animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold mb-2">Discover Movies & TV Shows</h1>
+        <p className="text-muted-foreground">
+          Search for your favorite movies and add them to your watchlist
+        </p>
+      </div>
+
+      {searchResults.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-lg text-muted-foreground">No movies found.</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Try searching for a different movie or TV show.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {searchResults.map((movie) => (
+            <MovieCard
+              key={movie.id}
+              movie={movie}
+              isInWatchlist={watchlist.some(w => w.id === movie.id)}
+              onAddToWatchlist={handleAddToWatchlist}
+            />
+          ))}
+        </div>
+      )}
     </div>
-  );
+  )
 }
