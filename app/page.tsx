@@ -2,91 +2,51 @@
 
 import { useState, useEffect } from "react"
 import { MovieCard } from "@/components/movie-card"
+import type { Movie } from "@/types/movie"
 
-interface Movie {
-  id: number
-  title: string
-  year: number
-  poster: string
+// TMDB'den popüler filmleri getiren fonksiyon
+async function fetchPopularMovies(): Promise<Movie[]> {
+  try {
+    const response = await fetch(`/api/movies/popular`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch movies');
+    }
+    const data = await response.json();
+    return data.results || [];
+  } catch (error) {
+    console.error('Error fetching movies:', error);
+    return [];
+  }
 }
 
-// Mock movie data
-const mockMovies: Movie[] = [
-  {
-    id: 1,
-    title: "The Dark Knight",
-    year: 2008,
-    poster: "/dark-knight-poster.png"
-  },
-  {
-    id: 2,
-    title: "Inception",
-    year: 2010,
-    poster: "/inception-movie-poster.png"
-  },
-  {
-    id: 3,
-    title: "Interstellar",
-    year: 2014,
-    poster: "/interstellar-inspired-poster.png"
-  },
-  {
-    id: 4,
-    title: "The Matrix",
-    year: 1999,
-    poster: "/matrix-movie-poster.png"
-  },
-  {
-    id: 5,
-    title: "Pulp Fiction",
-    year: 1994,
-    poster: "/pulp-fiction-poster.png"
-  },
-  {
-    id: 6,
-    title: "The Shawshank Redemption",
-    year: 1994,
-    poster: "/shawshank-redemption-poster.png"
-  },
-  {
-    id: 7,
-    title: "Forrest Gump",
-    year: 1994,
-    poster: "/forrest-gump-poster.png"
-  },
-  {
-    id: 8,
-    title: "The Godfather",
-    year: 1972,
-    poster: "/classic-mob-poster.png"
-  }
-]
-
 export default function HomePage() {
-  const [searchResults, setSearchResults] = useState<Movie[]>([])
-  const [watchlist, setWatchlist] = useState<Movie[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate loading search results
-    const timer = setTimeout(() => {
-      setSearchResults(mockMovies)
-      setIsLoading(false)
-    }, 1000)
+    const loadMovies = async () => {
+      try {
+        setIsLoading(true);
+        const popularMovies = await fetchPopularMovies();
+        setMovies(popularMovies);
+      } catch (err) {
+        console.error('Failed to load movies:', err);
+        setError('Filmler yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer)
-  }, [])
-
-  const handleAddToWatchlist = (movie: Movie) => {
-    setWatchlist(prev => [...prev, movie])
-  }
+    loadMovies();
+  }, []);
 
   if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2">Discover Movies & TV Shows</h1>
-          <p className="text-muted-foreground">Loading popular movies...</p>
+          <h1 className="text-3xl font-bold mb-2">Popüler Filmler ve Diziler</h1>
+          <p className="text-muted-foreground">Yükleniyor...</p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -103,30 +63,38 @@ export default function HomePage() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-xl font-semibold mb-2">Bir Hata Oluştu</h2>
+        <p className="text-muted-foreground">{error}</p>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold mb-2">Discover Movies & TV Shows</h1>
+        <h1 className="text-3xl font-bold mb-2">Popüler Filmler ve Diziler</h1>
         <p className="text-muted-foreground">
-          Search for your favorite movies and add them to your watchlist
+          En popüler filmleri ve dizileri keşfedin
         </p>
       </div>
 
-      {searchResults.length === 0 ? (
+      {movies.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-lg text-muted-foreground">No movies found.</p>
+          <p className="text-lg text-muted-foreground">Gösterilecek film bulunamadı.</p>
           <p className="text-sm text-muted-foreground mt-2">
-            Try searching for a different movie or TV show.
+            Lütfen daha sonra tekrar deneyin.
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {searchResults.map((movie) => (
+          {movies.map((movie) => (
             <MovieCard
-              key={movie.id}
+              key={`${movie.id}-${movie.media_type || 'movie'}`}
               movie={movie}
-              isInWatchlist={watchlist.some(w => w.id === movie.id)}
-              onAddToWatchlist={handleAddToWatchlist}
+              isInWatchlist={false}
             />
           ))}
         </div>
